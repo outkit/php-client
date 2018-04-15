@@ -1,0 +1,8 @@
+test/coverage/*
+dist/
+composer.lock
+vendor
+.env
+composer.phar
+.editorconfig
+test.php
