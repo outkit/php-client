@@ -6,7 +6,7 @@ Add Outkit to your `composer.json` file:
 ```json
 {
   "require": {
-      "outkit/outkit": "*"
+      "outkit/php-client": "*"
   }
 }
 ```
