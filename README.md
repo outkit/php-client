@@ -6,7 +6,7 @@ Add Outkit to your `composer.json` file:
 ```json
 {
   "require": {
-    "outkit/outkit": "*"
+      "outkit/outkit": "*"
   }
 }
 ```
@@ -16,9 +16,9 @@ Add Outkit to your `composer.json` file:
 ### Authentication and setup
 ```php
 $client = new Outkit\Client(
-    '', // Fill in your API key
-    '', // Fill in your API secret
-    ''  // Fill in your API passphrase (not your personal password)
+    "", // Fill in your API key
+    "", // Fill in your API secret
+    ""  // Fill in your API passphrase (not your personal password)
 );
 ```
 
@@ -28,16 +28,16 @@ The API call returns as soon as the message is saved on our servers, it does not
 can retrieve the status of a message at any time. We also support webhook notifications on status changes.
 
 ```php
-Construct a message record
+// Construct a message record
 $message = array(
     "type" => "email",                   // Message type - 'email' and 'sms' currently supported
     "project" => "my-project",           // Project identifier
-    "subject" => 'Welcome, Jane!',       // Email subject (optional, can also be set in the template or omitted for SMS messages)
+    "subject" => "Welcome, Jane!",       // Email subject (optional, can also be set in the template or omitted for SMS messages)
     "template" => "my-template",         // Template identifier
     "to" => "some.name@example.com",     // Recipient address (and optional name)
-    "from" => 'other.name@example.com',  // Sender address (and optional name)
+    "from" => "other.name@example.com",  // Sender address (and optional name)
     "data" => array(
-        "name" => 'John Doe',
+        "name" => "John Doe",
         // ...
         // Add the values for any variables used in the template here
     ),
@@ -72,7 +72,7 @@ applicable rendered fields (`subject`, `html_body` and `text_body` for emails, `
 can see exactly what was/will be sent.
 
 ```php
-$message = $client->getMessage('some-id');
+$message = $client->getMessage("some-id");
 ```
 
 ### Return values
@@ -83,20 +83,20 @@ translated to PHP Arrays.
 
 ```php
 array(
-  "meta" => ...,
+  "meta" => array(...),
   "data" => array(
-    "type" => 'email',
-    "id" => '578b072e-79e4-441e-b696-784aa744bf6e',
-    "project" => 'my-project',
-    "template" => 'my-welcome',
-    "to" => 'some.name@example.com',
-    "from" => 'other.name@example.com',
-    "status" => 'received',
-    "subject" => 'Welcome, Jane!',
+    "type" => "email",
+    "id" => "578b072e-79e4-441e-b696-784aa744bf6e",
+    "project" => "my-project",
+    "template" => "my-welcome",
+    "to" => "some.name@example.com",
+    "from" => "other.name@example.com",
+    "status" => "received",
+    "subject" => "Welcome, Jane!",
     "html_body" => null,
     "text_body" => null,
     "data" => null,
-    "created_at" => '2017-07-21T19:17:35.383277Z',
+    "created_at" => "2017-07-21T19:17:35.383277Z",
     "failed_at" => null,
     "queued_at" => null,
     "delivered_at" => null,
