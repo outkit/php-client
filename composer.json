@@ -13,8 +13,8 @@
         "nategood/httpful": "*"
     },
     "autoload": {
-        "psr-4": { 
-            "Outkit\\": "src/" 
+        "psr-0": {
+            "Outkit": "src/"
         }
-    }
+    },
 }
