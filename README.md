@@ -13,14 +13,21 @@ Add Outkit to your `composer.json` file:
 
 ## Usage
 
-### Authentication and setup
+### Setup and authentication
 ```php
+// Use autolading to be able to use our classes without explicitly requiring them
+require __DIR__ . '/vendor/autoload.php';
+
+// Instantiate a client by supplying API credentials
 $client = new Outkit\Client(
     "", // Fill in your API key
     "", // Fill in your API secret
     ""  // Fill in your API passphrase (not your personal password)
 );
 ```
+
+You should figure out a way to get your credentials into your script without hardcoding 
+them into your source files, like using environment variables.
 
 ### Submitting a message
 Submitting a message for rendering and/or delivery will return a message record with the Outkit ID and the status set to `received`. 
