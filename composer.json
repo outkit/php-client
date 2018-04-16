@@ -7,7 +7,7 @@
     "keywords": ["outkit", "api", "client", "rest", "restful"],
     "authors": [
         {
-            "name": "Stian Grytøyr",
+            "name": "Stian Grytøyr"
         }
     ],
     "require": {
