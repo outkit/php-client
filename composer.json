@@ -1,6 +1,5 @@
 {
     "name": "outkit/php-client",
-    "version": "0.0.1",
     "description": "Outkit PHP client",
     "homepage": "https://github.com/outkit/php-client",
     "license": "MIT",
