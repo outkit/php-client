@@ -1,7 +1,9 @@
 <?php
-include('./httpful.phar');
+// require __DIR__ . '../../../vendor/autoload.php';
+
+namespace Outkit;
  
-class Outkit
+class Client
 {
     public $key;
     public $secret;
@@ -19,31 +21,31 @@ class Outkit
 
     public function getMessage($id) {
       $uri = $this->baseUri . '/messages/' . $id;
-      $sigStuff = $this->getSignatureStuff('GET', $uri, '');
+      $sigData = $this->getSignatureData('GET', $uri);
       $req = \Httpful\Request::get($uri);
-      return $this->finish($req, $sigStuff);
+      return $this->finish($req, $sigData);
     }
 
     public function createMessage($message) {
       $json = json_encode(array("message" => $message));
       $uri = $this->baseUri . '/messages';
-      $sigStuff = $this->getSignatureStuff('POST', $uri, $json);
+      $sigData = $this->getSignatureData('POST', $uri, $json);
       $req = \Httpful\Request::post($uri)
           ->sendsJson()
           ->body($json);
-      return $this->finish($req, $sigStuff);
+      return $this->finish($req, $sigData);
     }
 
-    private function getSignatureStuff($method, $uri, $body) {
+    private function getSignatureData($method, $uri, $body = '') {
       $uriParts = parse_url($uri);
       $path = $uriParts["path"];
       $qs = $uriParts["query"];
       $timestamp = time();
       if ($qs) {
-        $body = '?' + $qs;
+        $body .= '?' + $qs;
       }
-      $what = $timestamp . $method . $path . $body;
-      $hmac = hash_hmac('sha256', $what, $this->secret, true);
+      $payload = $timestamp . $method . $path . $body;
+      $hmac = hash_hmac('sha256', $payload, $this->secret, true);
       $signature = base64_encode($hmac);
       return array(
         "key" => $this->key,
@@ -55,6 +57,7 @@ class Outkit
 
     private function finish($req, $sig) {
       $resp = $req
+          ->addHeader('User-Agent', 'outkit-php-client')
           ->addHeader('Outkit-Access-Key', $sig["key"])
           ->addHeader('Outkit-Access-Signature', $sig["signature"])
           ->addHeader('Outkit-Access-Timestamp', $sig["timestamp"])
