@@ -1,16 +1,14 @@
 <?php
-// Point to where you downloaded the phar
 include('./httpful.phar');
  
 class Outkit
 {
-    // property declaration
     public $key;
     public $secret;
     public $passphrase;
     public $baseUri = 'https://api.outkit.io/v1';
 
-    public function __construct($key, $secret, $passphrase, $baseUri) {
+    public function __construct($key, $secret, $passphrase, $baseUri = null) {
       $this->key = $key;
       $this->secret = $secret;
       $this->passphrase = $passphrase;
@@ -19,36 +17,30 @@ class Outkit
       }
     }
 
-    // method declaration
     public function getMessage($id) {
-      $sigStuff = $this->getSignatureStuff('GET', '/v1/messages/' . $id, '', '');
-      $getResp = \Httpful\Request::get($this->baseUri . '/messages/' . $id)
-          ->addHeader('Outkit-Access-Key', $sigStuff["key"])
-          ->addHeader('Outkit-Access-Signature', $sigStuff["signature"])
-          ->addHeader('Outkit-Access-Timestamp', $sigStuff["timestamp"])
-          ->addHeader('Outkit-Access-Passphrase', $sigStuff["passphrase"])
-          ->send();
-      return $getResp->body;
+      $uri = $this->baseUri . '/messages/' . $id;
+      $sigStuff = $this->getSignatureStuff('GET', $uri, '');
+      $req = \Httpful\Request::get($uri);
+      return $this->finish($req, $sigStuff);
     }
 
     public function createMessage($message) {
       $json = json_encode(array("message" => $message));
-      $sigStuff = $this->getSignatureStuff('POST', '/v1/messages', $json, '');
-      $postResp = \Httpful\Request::post($this->baseUri . '/messages')     // Build a POST request...
-          ->sendsJson()                            // tell it we're sending (Content-Type) JSON...
-          ->body($json)                            // attach a body/payload...
-          ->addHeader('Outkit-Access-Key', $sigStuff["key"])
-          ->addHeader('Outkit-Access-Signature', $sigStuff["signature"])
-          ->addHeader('Outkit-Access-Timestamp', $sigStuff["timestamp"])
-          ->addHeader('Outkit-Access-Passphrase', $sigStuff["passphrase"])
-          ->send();
-      return $postResp->body;
+      $uri = $this->baseUri . '/messages';
+      $sigStuff = $this->getSignatureStuff('POST', $uri, $json);
+      $req = \Httpful\Request::post($uri)
+          ->sendsJson()
+          ->body($json);
+      return $this->finish($req, $sigStuff);
     }
 
-    private function getSignatureStuff($method, $path, $body, $qs) {
+    private function getSignatureStuff($method, $uri, $body) {
+      $uriParts = parse_url($uri);
+      $path = $uriParts["path"];
+      $qs = $uriParts["query"];
       $timestamp = time();
-      if ($qs && Object.keys($qs).length !== 0) {
-        $body = '?' + querystring.stringify($qs);
+      if ($qs) {
+        $body = '?' + $qs;
       }
       $what = $timestamp . $method . $path . $body;
       $hmac = hash_hmac('sha256', $what, $this->secret, true);
@@ -60,6 +52,18 @@ class Outkit
         "passphrase" => $this->passphrase,
       );
     }
+
+    private function finish($req, $sig) {
+      $resp = $req
+          ->addHeader('Outkit-Access-Key', $sig["key"])
+          ->addHeader('Outkit-Access-Signature', $sig["signature"])
+          ->addHeader('Outkit-Access-Timestamp', $sig["timestamp"])
+          ->addHeader('Outkit-Access-Passphrase', $sig["passphrase"])
+          ->send();
+      return $resp->body;
+    }
+
+
 }
 
 ?>
