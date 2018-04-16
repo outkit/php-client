@@ -2,7 +2,15 @@
 This is the official PHP client for the [Outkit](https://outkit.io/) API.
 
 ## Installation
-Add Outkit to your `composer.json` file:
+Outkit is available as a Composer package. Add Outkit to your `composer.json` file like so:
+
+```
+composer require outkit/php-client
+# OR
+php composer.phar require outkit/php-client
+```
+
+Or you could just add it manually, like so:
 ```json
 {
   "require": {
