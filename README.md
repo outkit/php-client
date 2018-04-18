@@ -38,13 +38,14 @@ You should figure out a way to get your credentials into your script without har
 them into your source files, like using environment variables.
 
 ### Submitting a message
-Submitting a message for rendering and/or delivery will return a message record with the Outkit ID and the status set to `received`. 
-The API call returns as soon as the message is saved on our servers, it does not wait for rendering or delivery to take place. You 
-can retrieve the status of a message at any time. We also support webhook notifications on status changes.
+Submitting a message for rendering and/or delivery will return a message record with the Outkit ID and the status set to `received`
+(as well as a few other properties that can be determined at creation time). The API call returns as soon as the message 
+is saved on our servers, it does not wait for rendering or delivery to take place (by default - see the section on synchronous
+processing below). You can retrieve the status of a message at any time. We also support webhook notifications on status changes.
 
 ```php
 // Construct a message record
-$message = array(
+$messageRecord = array(
     "type" => "email",                   // Message type - 'email' and 'sms' currently supported
     "project" => "my-project",           // Project identifier
     "subject" => "Welcome, Jane!",       // Email subject (optional, can also be set in the template or omitted for SMS messages)
@@ -59,8 +60,43 @@ $message = array(
 );
 
 // Then submit it
-$ret = $client->createMessage($message);
+$message = $client->createMessage($messageRecord);
 
+```
+
+### Retrieving a message
+You can retrieve the status and data of a message at any time. After the message has been rendered, we will also return the 
+applicable rendered fields (`subject`, `html_body` and `text_body` for emails, `text_body` for SMS messages) so that you 
+can see exactly what was/will be sent.
+
+```php
+$message = $client->getMessage("some-id");
+```
+
+### Return values
+Both API calls return a single PHP Array with information about the message being submitted/inquired about.
+Which fields have content at any given time depends on which fields were submitted and the current status of the message. 
+All JSON objects and arrays are translated to PHP Arrays.
+
+```php
+array(
+    "type" => "email",
+    "id" => "578b072e-79e4-441e-b696-784aa744bf6e",
+    "project" => "my-project",
+    "template" => "my-welcome",
+    "to" => "some.name@example.com",
+    "from" => "other.name@example.com",
+    "status" => "received",
+    "subject" => "Welcome, Jane!",
+    "html_body" => null,
+    "text_body" => null,
+    "data" => null,
+    "created_at" => "2017-07-21T19:17:35.383277Z",
+    "failed_at" => null,
+    "queued_at" => null,
+    "delivered_at" => null,
+    "done" => false,
+)
 ```
 
 ### Rendering a message
@@ -80,45 +116,6 @@ Note that this will incur additional costs (see our pricing page for details), a
 a limited number of such requests (currently 100.000 per month), since they are more difficult and costly for us to scale.
 Customers that need additional synchronous requests can contact support to have their monthly limit raised.
 
-
-### Retrieving a message
-You can retrieve the status and data of a message at any time. After the message has been rendered, we will also return the 
-applicable rendered fields (`subject`, `html_body` and `text_body` for emails, `text_body` for SMS messages) so that you 
-can see exactly what was/will be sent.
-
-```php
-$message = $client->getMessage("some-id");
-```
-
-### Return values
-Both API calls return a single JSON document (wrapped in a `data` key) with information about the message 
-being submitted/inquired about, as well as an outer `meta` key with metadata. Which fields have content at 
-any given time depends on which fields were submitted and the current status of the message. All data is
-translated to PHP Arrays.
-
-```php
-array(
-  "meta" => array(...),
-  "data" => array(
-    "type" => "email",
-    "id" => "578b072e-79e4-441e-b696-784aa744bf6e",
-    "project" => "my-project",
-    "template" => "my-welcome",
-    "to" => "some.name@example.com",
-    "from" => "other.name@example.com",
-    "status" => "received",
-    "subject" => "Welcome, Jane!",
-    "html_body" => null,
-    "text_body" => null,
-    "data" => null,
-    "created_at" => "2017-07-21T19:17:35.383277Z",
-    "failed_at" => null,
-    "queued_at" => null,
-    "delivered_at" => null,
-    "done" => false,
-  ),
-)
-```
 
 ## Message lifecycle
 
@@ -151,3 +148,18 @@ can inspect the full backend response in the `response` field.
 
 All messages have a `done` flag (true or false) which indicate whether we have finished processing it. Nothing more
 will happen to a message once it is done, regardless of its status.
+
+## A note on function names
+The method names for messages (`getMessage` and `createMessage`) are deliberately generic, to align them with future 
+expansions of the API (say, `Outkit.Project.create`). So even though you might feel like you are _submitting_ or 
+_sending_ a message (and we often use terms like that in our own docs), in API terms you are always just 
+`createMessage`-ing it.
+
+You’ll probably wrap our functions in your own `sendSms` or `enqueueEmail` or whatever anyway, so it 
+shouldn’t be much of an issue. We feel that when dealing with APIs and their clients, consistency trumps linguistic 
+accuracy.
+
+## TODO
+* Add proper tests with mocks
+* Add a way to access the full response
+

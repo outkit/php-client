@@ -63,7 +63,7 @@ class Client
           ->addHeader('Outkit-Access-Timestamp', $sig["timestamp"])
           ->addHeader('Outkit-Access-Passphrase', $sig["passphrase"])
           ->send();
-      return $resp->body;
+      return $resp->body["data"];
     }
 
 
