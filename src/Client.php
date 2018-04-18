@@ -10,12 +10,12 @@ class Client
     public $passphrase;
     public $baseUri = 'https://api.outkit.io/v1';
 
-    public function __construct($key, $secret, $passphrase, $baseUri = null) {
-      $this->key = $key;
-      $this->secret = $secret;
-      $this->passphrase = $passphrase;
-      if ($baseUri) {
-        $this->baseUri = $baseUri;
+    public function __construct($opts) {
+      $this->key = $opts["key"];
+      $this->secret = $opts["secret"];
+      $this->passphrase = $opts["passphrase"];
+      if ($opts["baseUri"]) {
+        $this->baseUri = $opts["baseUri"];
       }
     }
 
@@ -63,7 +63,7 @@ class Client
           ->addHeader('Outkit-Access-Timestamp', $sig["timestamp"])
           ->addHeader('Outkit-Access-Passphrase', $sig["passphrase"])
           ->send();
-      return $resp->body["data"];
+      return $resp->body->data;
     }
 
 

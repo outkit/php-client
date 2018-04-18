@@ -27,11 +27,11 @@ Or you could just add it manually, like so:
 require __DIR__ . '/vendor/autoload.php';
 
 // Instantiate a client by supplying API credentials
-$client = new Outkit\Client(
-    "", // Fill in your API key
-    "", // Fill in your API secret
-    ""  // Fill in your API passphrase (not your personal password)
-);
+$client = new Outkit\Client(array(
+    "key" => "",        // Fill in your API key
+    "secret" => "",     // Fill in your API secret
+    "passphrase" => ""  // Fill in your API passphrase (not your personal password)
+));
 ```
 
 You should figure out a way to get your credentials into your script without hardcoding 
@@ -73,13 +73,13 @@ can see exactly what was/will be sent.
 $message = $client->getMessage("some-id");
 ```
 
-### Return values
-Both API calls return a single PHP Array with information about the message being submitted/inquired about.
+## Return values
+Both API calls return a single PHP stdClass with information about the message being submitted/inquired about.
 Which fields have content at any given time depends on which fields were submitted and the current status of the message. 
-All JSON objects and arrays are translated to PHP Arrays.
+All JSON objects and arrays are translated to PHP stdClasses and Arrays.
 
 ```php
-array(
+object(stdClass){
     "type" => "email",
     "id" => "578b072e-79e4-441e-b696-784aa744bf6e",
     "project" => "my-project",
@@ -96,17 +96,19 @@ array(
     "queued_at" => null,
     "delivered_at" => null,
     "done" => false,
-)
+}
 ```
 
-### Rendering a message
+So if the above was stored in `$message`, you could access _status_ as `$message->status`.
+
+## Rendering a message
 To support the use case of rendering a message using the Outkit infrastructure, but sending it yourself, you can specify
 `"render_only" => true` in the message record.
 
 Once the message has been rendered, its data will contain a `text_body` field (all types), and `subject` and `html_body` 
 fields for emails. These can then be fed directly to, say, a Mailgun client or SMTP server. See details below.
 
-### Synchronous processing
+## Synchronous processing
 For some use cases (sending emails from scripts, using Outkit as a renderer etc.), it can be desirable to have the
 API calls operate synchronously - ie. attempt rendering/delivery immediately instead of queueing them, and return the 
 rendered message and (optionally) its delivery status in the data from the API call. This can be accomplished by setting 
@@ -151,7 +153,7 @@ will happen to a message once it is done, regardless of its status.
 
 ## A note on function names
 The method names for messages (`getMessage` and `createMessage`) are deliberately generic, to align them with future 
-expansions of the API (say, `Outkit.Project.create`). So even though you might feel like you are _submitting_ or 
+expansions of the API (say, `createProject`). So even though you might feel like you are _submitting_ or 
 _sending_ a message (and we often use terms like that in our own docs), in API terms you are always just 
 `createMessage`-ing it.
 
