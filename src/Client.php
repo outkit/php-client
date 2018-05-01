@@ -14,7 +14,7 @@ class Client
         $this->key = $opts["key"];
         $this->secret = $opts["secret"];
         $this->passphrase = $opts["passphrase"];
-        if ($opts["baseUri"]) {
+        if (array_key_exists('baseUri', $opts)) {
             $this->baseUri = $opts["baseUri"];
         }
     }
@@ -39,7 +39,7 @@ class Client
     private function getSignatureData($method, $uri, $body = '') {
         $uriParts = parse_url($uri);
         $path = $uriParts["path"];
-        $qs = $uriParts["query"];
+        $qs = array_key_exists('query', $uriParts) ? $uriParts["query"] : '';
         $timestamp = time();
         if ($qs) {
             $body .= '?' + $qs;
